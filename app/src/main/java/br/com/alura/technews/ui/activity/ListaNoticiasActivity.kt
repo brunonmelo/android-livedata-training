@@ -13,6 +13,7 @@ import br.com.alura.technews.repository.NoticiaRepository
 import br.com.alura.technews.ui.activity.extensions.mostraErro
 import br.com.alura.technews.ui.recyclerview.adapter.ListaNoticiasAdapter
 import br.com.alura.technews.ui.viewmodels.ListaNoticiasViewModel
+import br.com.alura.technews.ui.viewmodels.factory.ListaNoticiaViewModelFactory
 import kotlinx.android.synthetic.main.activity_lista_noticias.*
 
 private const val TITULO_APPBAR = "Notícias"
@@ -20,11 +21,17 @@ private const val MENSAGEM_FALHA_CARREGAR_NOTICIAS = "Não foi possível carrega
 
 class ListaNoticiasActivity : AppCompatActivity() {
 
-    private val repository by lazy {
-        NoticiaRepository(AppDatabase.getInstance(this).noticiaDAO)
-    }
     private val adapter by lazy {
         ListaNoticiasAdapter(context = this)
+    }
+
+    private val mViewModel by lazy {
+        val repository = NoticiaRepository(AppDatabase.getInstance(this).noticiaDAO)
+        val provider = ViewModelProvider(
+            this,
+            ListaNoticiaViewModelFactory(repository)
+        )
+        provider.get(ListaNoticiasViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,9 +40,6 @@ class ListaNoticiasActivity : AppCompatActivity() {
         title = TITULO_APPBAR
         configuraRecyclerView()
         configuraFabAdicionaNoticia()
-
-        val provider = ViewModelProvider(this)
-        val mViewModel = provider.get(ListaNoticiasViewModel::class.java)
     }
 
     override fun onResume() {
@@ -61,7 +65,7 @@ class ListaNoticiasActivity : AppCompatActivity() {
     }
 
     private fun buscaNoticias() {
-        repository.buscaTodos(
+        mViewModel.buscaTodos(
             quandoSucesso = {
                 adapter.atualiza(it)
             }, quandoFalha = {
