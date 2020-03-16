@@ -35,10 +35,9 @@ class ListaNoticiasAdapter(
     }
 
     fun atualiza(noticias: List<Noticia>) {
-        notifyItemRangeRemoved(0, this.noticias.size)
         this.noticias.clear()
         this.noticias.addAll(noticias)
-        notifyItemRangeInserted(0, this.noticias.size)
+        notifyDataSetChanged()
     }
 
     inner class ViewHolder(itemView: View) :
