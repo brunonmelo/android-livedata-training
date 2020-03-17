@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.alura.technews.asynctask.BaseAsyncTask
 import br.com.alura.technews.database.dao.NoticiaDAO
-import br.com.alura.technews.model.Resource
 import br.com.alura.technews.model.Noticia
+import br.com.alura.technews.model.Resource
 import br.com.alura.technews.retrofit.webclient.NoticiaWebClient
 
 class NoticiaRepository(
@@ -16,16 +16,18 @@ class NoticiaRepository(
     private val listaNoticiaLiveData: MutableLiveData<Resource<List<Noticia>>> = MutableLiveData()
 
     fun buscaTodos(): LiveData<Resource<List<Noticia>>> {
-        buscaInterno {
-            listaNoticiaLiveData.postValue(Resource(it))
-        }
-        buscaNaApi(quandoSucesso = {
-            listaNoticiaLiveData.postValue(Resource(it))
-        }, quandoFalha = {
-            val resourceAtual = listaNoticiaLiveData.value
-            listaNoticiaLiveData.postValue(Resource(resourceAtual?.dado, error = it))
-        })
+        buscaInterno(publicaResouceDeSucesso())
+        buscaNaApi(publicaResouceDeSucesso(), publicaResouceDeFalha())
         return listaNoticiaLiveData
+    }
+
+    private fun publicaResouceDeSucesso(): (listaNoticia: List<Noticia>) -> Unit =
+        { listaNoticiaLiveData.postValue(Resource(it)) }
+
+
+    private fun publicaResouceDeFalha(): (errorMsg: String?) -> Unit {
+        val resourceAtual = listaNoticiaLiveData.value
+        return { listaNoticiaLiveData.postValue(resourceAtual?.criarResouceDeFalha(it)) }
     }
 
     fun salva(
