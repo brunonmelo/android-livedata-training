@@ -1,4 +1,3 @@
-
 package br.com.alura.technews.ui.activity
 
 import android.content.Intent
@@ -6,11 +5,15 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import br.com.alura.technews.R
 import br.com.alura.technews.database.AppDatabase
 import br.com.alura.technews.model.Noticia
 import br.com.alura.technews.repository.NoticiaRepository
 import br.com.alura.technews.ui.activity.extensions.mostraErro
+import br.com.alura.technews.ui.viewmodels.VizualizaNoticiaViewModel
+import br.com.alura.technews.ui.viewmodels.factory.VisualizaNoticiaViewModelFactory
 import kotlinx.android.synthetic.main.activity_visualiza_noticia.*
 
 private const val NOTICIA_NAO_ENCONTRADA = "Notícia não encontrada"
@@ -24,6 +27,11 @@ class VisualizaNoticiaActivity : AppCompatActivity() {
     }
     private val repository by lazy {
         NoticiaRepository(AppDatabase.getInstance(this).noticiaDAO)
+    }
+    private val mViewModel by lazy {
+        ViewModelProvider(this, VisualizaNoticiaViewModelFactory(repository)).get(
+            VizualizaNoticiaViewModel::class.java
+        )
     }
     private lateinit var noticia: Noticia
 
@@ -53,8 +61,8 @@ class VisualizaNoticiaActivity : AppCompatActivity() {
     }
 
     private fun buscaNoticiaSelecionada() {
-        repository.buscaPorId(noticiaId, quandoSucesso = { noticiaEncontrada ->
-            noticiaEncontrada?.let {
+        mViewModel.buscaPorId(noticiaId).observe(this, Observer { resource ->
+            resource.dado?.let {
                 this.noticia = it
                 preencheCampos(it)
             }
@@ -75,10 +83,12 @@ class VisualizaNoticiaActivity : AppCompatActivity() {
 
     private fun remove() {
         if (::noticia.isInitialized) {
-            repository.remove(noticia, quandoSucesso = {
-                finish()
-            }, quandoFalha = {
-                mostraErro(MENSAGEM_FALHA_REMOCAO)
+            mViewModel.remove(noticia).observe(this, Observer { resource ->
+                if (resource.error != null) {
+                    mostraErro(MENSAGEM_FALHA_REMOCAO)
+                } else {
+                    finish()
+                }
             })
         }
     }

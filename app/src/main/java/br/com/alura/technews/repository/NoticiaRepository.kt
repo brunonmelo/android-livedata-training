@@ -27,9 +27,16 @@ class NoticiaRepository(
         return listaNoticiaLiveData
     }
 
-    private fun <T> publicaResouceDeSucesso(liveData: MutableLiveData<Resource<T>>): (data: T) -> Unit =
+    private fun <T> publicaResouceDeSucesso(liveData: MutableLiveData<Resource<T>>): (data: T?) -> Unit =
         { liveData.postValue(Resource(it)) }
 
+    private fun publicaResouceVazioSucesso(voidLiveData: MutableLiveData<Resource<Void?>>): () -> Unit {
+        return { voidLiveData.postValue(Resource(null)) }
+    }
+
+    private fun publicaResouceVazioDeFalha(voidLiveData: MutableLiveData<Resource<Void?>>): (errorMsg: String?) -> Unit {
+        return { voidLiveData.postValue(Resource(null, it)) }
+    }
 
     private fun <T> publicaResouceDeFalha(liveData: MutableLiveData<Resource<T>>): (errorMsg: String?) -> Unit {
         val resourceAtual = liveData.value
@@ -47,12 +54,14 @@ class NoticiaRepository(
         return noticiaLiveData
     }
 
-    fun remove(
-        noticia: Noticia,
-        quandoSucesso: () -> Unit,
-        quandoFalha: (erro: String?) -> Unit
-    ) {
-        removeNaApi(noticia, quandoSucesso, quandoFalha)
+    fun remove(noticia: Noticia): MutableLiveData<Resource<Void?>> {
+        val voidLiveData: MutableLiveData<Resource<Void?>> = MutableLiveData()
+        removeNaApi(
+            noticia,
+            quandoSucesso = publicaResouceVazioSucesso(voidLiveData),
+            quandoFalha = publicaResouceVazioDeFalha(voidLiveData)
+        )
+        return voidLiveData
     }
 
     fun edita(
@@ -65,17 +74,6 @@ class NoticiaRepository(
         )
         return noticiaLiveData
     }
-
-    fun buscaPorId(
-        noticiaId: Long,
-        quandoSucesso: (noticiaEncontrada: Noticia?) -> Unit
-    ) {
-        BaseAsyncTask(quandoExecuta = {
-            dao.buscaPorId(noticiaId)
-        }, quandoFinaliza = quandoSucesso)
-            .execute()
-    }
-
 
     fun buscaPorId(noticiaId: Long): LiveData<Resource<Noticia?>> {
         BaseAsyncTask(
