@@ -4,11 +4,15 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import br.com.alura.technews.R
 import br.com.alura.technews.database.AppDatabase
 import br.com.alura.technews.model.Noticia
 import br.com.alura.technews.repository.NoticiaRepository
 import br.com.alura.technews.ui.activity.extensions.mostraErro
+import br.com.alura.technews.ui.viewmodels.FormularioNoticiaViewModel
+import br.com.alura.technews.ui.viewmodels.factory.FormularioNoticiaViewModelFactory
 import kotlinx.android.synthetic.main.activity_formulario_noticia.*
 
 private const val TITULO_APPBAR_EDICAO = "Editando notícia"
@@ -22,6 +26,12 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     }
     private val repository by lazy {
         NoticiaRepository(AppDatabase.getInstance(this).noticiaDAO)
+    }
+
+    private val mViewModel by lazy {
+        ViewModelProvider(this, FormularioNoticiaViewModelFactory(repository)).get(
+            FormularioNoticiaViewModel::class.java
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,10 +50,10 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     }
 
     private fun preencheFormulario() {
-        repository.buscaPorId(noticiaId, quandoSucesso = { noticiaEncontrada ->
-            if (noticiaEncontrada != null) {
-                activity_formulario_noticia_titulo.setText(noticiaEncontrada.titulo)
-                activity_formulario_noticia_texto.setText(noticiaEncontrada.texto)
+        mViewModel.buscaPorId(noticiaId).observe(this, Observer { resourceNoticia ->
+            resourceNoticia.dado?.let { noticia ->
+                activity_formulario_noticia_titulo.setText(noticia.titulo)
+                activity_formulario_noticia_texto.setText(noticia.texto)
             }
         })
     }
@@ -65,27 +75,15 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     }
 
     private fun salva(noticia: Noticia) {
-        val falha = { _: String? ->
-            mostraErro(MENSAGEM_ERRO_SALVAR)
-        }
-        val sucesso = { _: Noticia ->
-            finish()
-        }
-
-        if (noticia.id > 0) {
-            repository.edita(
-                noticia,
-                quandoSucesso = sucesso,
-                quandoFalha = falha
-            )
+        val noticiaLivedata = if (noticia.id > 0) {
+            mViewModel.edita(noticia)
         } else {
-            repository.salva(
-                noticia,
-                quandoSucesso = sucesso,
-                quandoFalha = falha
-            )
+            mViewModel.salva(noticia)
         }
+        noticiaLivedata.observe(this, Observer { noticiaResource ->
+            noticiaResource.dado?.let { finish() }
+            noticiaResource.error?.let { mostraErro(MENSAGEM_ERRO_SALVAR) }
+        })
     }
-
 
 }
