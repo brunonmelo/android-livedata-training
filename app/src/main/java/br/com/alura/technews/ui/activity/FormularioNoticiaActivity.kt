@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import br.com.alura.technews.R
 import br.com.alura.technews.database.AppDatabase
 import br.com.alura.technews.model.Noticia
+import br.com.alura.technews.model.Resource
 import br.com.alura.technews.repository.NoticiaRepository
 import br.com.alura.technews.ui.activity.extensions.mostraErro
 import br.com.alura.technews.ui.viewmodels.FormularioNoticiaViewModel
@@ -75,12 +77,12 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     }
 
     private fun salva(noticia: Noticia) {
-        val noticiaLivedata = if (noticia.id > 0) {
+        val voidLivedata: LiveData<Resource<Void?>> = if (noticia.id > 0) {
             mViewModel.edita(noticia)
         } else {
             mViewModel.salva(noticia)
         }
-        noticiaLivedata.observe(this, Observer { noticiaResource ->
+        voidLivedata.observe(this, Observer { noticiaResource ->
             noticiaResource.dado?.let { finish() }
             noticiaResource.error?.let { mostraErro(MENSAGEM_ERRO_SALVAR) }
         })

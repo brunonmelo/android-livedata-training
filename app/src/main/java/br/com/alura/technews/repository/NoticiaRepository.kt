@@ -45,17 +45,18 @@ class NoticiaRepository(
         }
     }
 
-    fun salva(noticia: Noticia): LiveData<Resource<Noticia?>> {
+    fun salva(noticia: Noticia): LiveData<Resource<Void?>> {
+        val voidLiveData = createVoidLivedata()
         salvaNaApi(
             noticia,
-            quandoSucesso = publicaResouceDeSucesso(noticiaLiveData),
-            quandoFalha = publicaResouceDeFalha(noticiaLiveData)
+            quandoSucesso = publicaResouceVazioSucesso(voidLiveData),
+            quandoFalha = publicaResouceVazioDeFalha(voidLiveData)
         )
-        return noticiaLiveData
+        return voidLiveData
     }
 
     fun remove(noticia: Noticia): MutableLiveData<Resource<Void?>> {
-        val voidLiveData: MutableLiveData<Resource<Void?>> = MutableLiveData()
+        val voidLiveData: MutableLiveData<Resource<Void?>> = createVoidLivedata()
         removeNaApi(
             noticia,
             quandoSucesso = publicaResouceVazioSucesso(voidLiveData),
@@ -66,13 +67,19 @@ class NoticiaRepository(
 
     fun edita(
         noticia: Noticia
-    ): LiveData<Resource<Noticia?>> {
+    ): LiveData<Resource<Void?>> {
+        val voidLiveData = createVoidLivedata()
+
         editaNaApi(
             noticia,
-            quandoSucesso = publicaResouceDeSucesso(noticiaLiveData),
-            quandoFalha = publicaResouceDeFalha(noticiaLiveData)
+            quandoSucesso = publicaResouceVazioSucesso(voidLiveData),
+            quandoFalha = publicaResouceVazioDeFalha(voidLiveData)
         )
-        return noticiaLiveData
+        return voidLiveData
+    }
+
+    private fun createVoidLivedata(): MutableLiveData<Resource<Void?>> {
+        return MutableLiveData()
     }
 
     fun buscaPorId(noticiaId: Long): LiveData<Resource<Noticia?>> {
@@ -106,7 +113,7 @@ class NoticiaRepository(
 
     private fun salvaNaApi(
         noticia: Noticia,
-        quandoSucesso: (noticiaNova: Noticia) -> Unit,
+        quandoSucesso: () -> Unit,
         quandoFalha: (erro: String?) -> Unit
     ) {
         webclient.salva(
@@ -133,14 +140,14 @@ class NoticiaRepository(
 
     private fun salvaInterno(
         noticia: Noticia,
-        quandoSucesso: (noticiaNova: Noticia) -> Unit
+        quandoSucesso: () -> Unit
     ) {
         BaseAsyncTask(quandoExecuta = {
             dao.salva(noticia)
             dao.buscaPorId(noticia.id)
         }, quandoFinaliza = { noticiaEncontrada ->
             noticiaEncontrada?.let {
-                quandoSucesso(it)
+                quandoSucesso()
             }
         }).execute()
 
@@ -174,7 +181,7 @@ class NoticiaRepository(
 
     private fun editaNaApi(
         noticia: Noticia,
-        quandoSucesso: (noticiaEditada: Noticia) -> Unit,
+        quandoSucesso: () -> Unit,
         quandoFalha: (erro: String?) -> Unit
     ) {
         webclient.edita(

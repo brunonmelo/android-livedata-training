@@ -8,7 +8,8 @@ class VisualizaNoticiaViewModelFactory(private val noticiaRepository: NoticiaRep
     ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return modelClass.getConstructor(NoticiaRepository::class.java)
+        return modelClass
+            .getConstructor(NoticiaRepository::class.java)
             .newInstance(noticiaRepository)
     }
 
