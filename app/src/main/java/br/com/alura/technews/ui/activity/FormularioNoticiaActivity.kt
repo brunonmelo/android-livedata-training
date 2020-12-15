@@ -26,14 +26,11 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     private val noticiaId: Long by lazy {
         intent.getLongExtra(NOTICIA_ID_CHAVE, 0)
     }
-    private val repository by lazy {
-        NoticiaRepository(AppDatabase.getInstance(this).noticiaDAO)
-    }
 
     private val mViewModel by lazy {
-        ViewModelProvider(this, FormularioNoticiaViewModelFactory(repository)).get(
-            FormularioNoticiaViewModel::class.java
-        )
+        val repository = NoticiaRepository(AppDatabase.getInstance(this).noticiaDAO)
+        val factory = FormularioNoticiaViewModelFactory(repository)
+        ViewModelProvider(this, factory).get(FormularioNoticiaViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,12 +49,14 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     }
 
     private fun preencheFormulario() {
-        mViewModel.buscaPorId(noticiaId).observe(this, Observer { resourceNoticia ->
-            resourceNoticia.dado?.let { noticia ->
-                activity_formulario_noticia_titulo.setText(noticia.titulo)
-                activity_formulario_noticia_texto.setText(noticia.texto)
-            }
-        })
+        mViewModel
+            .buscaPorId(noticiaId)
+            .observe(this, Observer { resourceNoticia ->
+                resourceNoticia.dado?.let { noticia ->
+                    activity_formulario_noticia_titulo.setText(noticia.titulo)
+                    activity_formulario_noticia_texto.setText(noticia.texto)
+                }
+            })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -77,15 +76,15 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     }
 
     private fun salva(noticia: Noticia) {
-        val voidLivedata: LiveData<Resource<Void?>> = if (noticia.id > 0) {
-            mViewModel.edita(noticia)
-        } else {
-            mViewModel.salva(noticia)
-        }
-        voidLivedata.observe(this, Observer { noticiaResource ->
-            noticiaResource.dado?.let { finish() }
-            noticiaResource.error?.let { mostraErro(MENSAGEM_ERRO_SALVAR) }
-        })
+        mViewModel
+            .salva(noticia)
+            .observe(this, Observer { resource ->
+                if (resource.error != null) {
+                    mostraErro(MENSAGEM_ERRO_SALVAR)
+                } else {
+                    finish()
+                }
+            })
     }
 
 }

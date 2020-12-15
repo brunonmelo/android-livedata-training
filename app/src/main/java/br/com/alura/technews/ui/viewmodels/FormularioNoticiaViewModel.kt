@@ -12,8 +12,12 @@ class FormularioNoticiaViewModel(private val noticiaRepository: NoticiaRepositor
         return noticiaRepository.buscaPorId(noticiaId)
     }
 
-    fun edita(noticia: Noticia): LiveData<Resource<Void?>> = noticiaRepository.edita(noticia)
-
-    fun salva(noticia: Noticia): LiveData<Resource<Void?>> = noticiaRepository.salva(noticia)
+    fun salva(noticia: Noticia): LiveData<Resource<Void?>> {
+        return if (noticia.id > 0) {
+            noticiaRepository.edita(noticia)
+        } else {
+            noticiaRepository.salva(noticia)
+        }
+    }
 
 }

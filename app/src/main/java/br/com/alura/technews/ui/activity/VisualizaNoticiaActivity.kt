@@ -25,13 +25,11 @@ class VisualizaNoticiaActivity : AppCompatActivity() {
     private val noticiaId: Long by lazy {
         intent.getLongExtra(NOTICIA_ID_CHAVE, 0)
     }
-    private val repository by lazy {
-        NoticiaRepository(AppDatabase.getInstance(this).noticiaDAO)
-    }
+
     private val mViewModel by lazy {
-        ViewModelProvider(this, VisualizaNoticiaViewModelFactory(repository)).get(
-            VizualizaNoticiaViewModel::class.java
-        )
+        val repository = NoticiaRepository(AppDatabase.getInstance(this).noticiaDAO)
+        val factory = VisualizaNoticiaViewModelFactory(repository)
+        ViewModelProvider(this, factory).get(VizualizaNoticiaViewModel::class.java)
     }
     private lateinit var noticia: Noticia
 
@@ -61,12 +59,14 @@ class VisualizaNoticiaActivity : AppCompatActivity() {
     }
 
     private fun buscaNoticiaSelecionada() {
-        mViewModel.buscaPorId(noticiaId).observe(this, Observer { resource ->
-            resource.dado?.let {
-                this.noticia = it
-                preencheCampos(it)
-            }
-        })
+        mViewModel
+            .buscaPorId(noticiaId)
+            .observe(this, Observer { resource ->
+                resource.dado?.let {
+                    this.noticia = it
+                    preencheCampos(it)
+                }
+            })
     }
 
     private fun verificaIdDaNoticia() {
@@ -83,13 +83,15 @@ class VisualizaNoticiaActivity : AppCompatActivity() {
 
     private fun remove() {
         if (::noticia.isInitialized) {
-            mViewModel.remove(noticia).observe(this, Observer { resource ->
-                if (resource.error != null) {
-                    mostraErro(MENSAGEM_FALHA_REMOCAO)
-                } else {
-                    finish()
-                }
-            })
+            mViewModel
+                .remove(noticia)
+                .observe(this, Observer { resource ->
+                    if (resource.error != null) {
+                        mostraErro(MENSAGEM_FALHA_REMOCAO)
+                    } else {
+                        finish()
+                    }
+                })
         }
     }
 

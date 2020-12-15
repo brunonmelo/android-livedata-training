@@ -28,11 +28,8 @@ class ListaNoticiasActivity : AppCompatActivity() {
 
     private val mViewModel by lazy {
         val repository = NoticiaRepository(AppDatabase.getInstance(this).noticiaDAO)
-        val provider = ViewModelProvider(
-            this,
-            ListaNoticiaViewModelFactory(repository)
-        )
-        provider.get(ListaNoticiasViewModel::class.java)
+        val factory = ListaNoticiaViewModelFactory(repository)
+        ViewModelProvider(this, factory).get(ListaNoticiasViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,10 +63,12 @@ class ListaNoticiasActivity : AppCompatActivity() {
     }
 
     private fun buscaNoticias() {
-        mViewModel.buscaTodos().observe(this, Observer { resource ->
-            resource.dado?.let { adapter.atualiza(it) }
-            resource.error?.let { mostraErro(MENSAGEM_FALHA_CARREGAR_NOTICIAS) }
-        })
+        mViewModel
+            .buscaTodos()
+            .observe(this, Observer { resource ->
+                resource.dado?.let { adapter.atualiza(it) }
+                resource.error?.let { mostraErro(MENSAGEM_FALHA_CARREGAR_NOTICIAS) }
+            })
     }
 
     private fun abreFormularioModoCriacao() {
