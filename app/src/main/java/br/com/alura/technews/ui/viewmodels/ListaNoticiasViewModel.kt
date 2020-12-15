@@ -8,8 +8,6 @@ import br.com.alura.technews.repository.NoticiaRepository
 
 class ListaNoticiasViewModel(private val noticiaRepository: NoticiaRepository) : ViewModel() {
 
-    fun buscaTodos(): LiveData<Resource<List<Noticia>>> {
-        return noticiaRepository.buscaTodos()
-    }
+    fun buscaTodos(): LiveData<Resource<List<Noticia>>> = noticiaRepository.buscaTodos()
 
 }
