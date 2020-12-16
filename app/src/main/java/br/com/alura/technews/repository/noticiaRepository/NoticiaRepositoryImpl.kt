@@ -1,4 +1,4 @@
-package br.com.alura.technews.repository
+package br.com.alura.technews.repository.noticiaRepository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -6,19 +6,20 @@ import br.com.alura.technews.asynctask.BaseAsyncTask
 import br.com.alura.technews.database.dao.NoticiaDAO
 import br.com.alura.technews.model.Noticia
 import br.com.alura.technews.model.Resource
+import br.com.alura.technews.repository.BaseRepository
 import br.com.alura.technews.retrofit.webclient.NoticiaWebClient
 
-class NoticiaRepository(
+class NoticiaRepositoryImpl(
     private val dao: NoticiaDAO,
     private val webclient: NoticiaWebClient = NoticiaWebClient()
-) {
+) : BaseRepository(), NoticiaRepository {
 
     private val listaNoticiaLiveData: MutableLiveData<Resource<List<Noticia>>> = MutableLiveData(
         Resource(listOf())
     )
     private val noticiaLiveData: MutableLiveData<Resource<Noticia?>> = MutableLiveData()
 
-    fun buscaTodos(): LiveData<Resource<List<Noticia>>> {
+    override fun buscaTodos(): LiveData<Resource<List<Noticia>>> {
         buscaInterno(publicaResouceDeSucesso(listaNoticiaLiveData))
         buscaNaApi(
             quandoSucesso = publicaResouceDeSucesso(listaNoticiaLiveData),
@@ -27,25 +28,7 @@ class NoticiaRepository(
         return listaNoticiaLiveData
     }
 
-    private fun <T> publicaResouceDeSucesso(liveData: MutableLiveData<Resource<T>>): (data: T?) -> Unit =
-        { liveData.postValue(Resource(it)) }
-
-    private fun publicaResouceVazioSucesso(voidLiveData: MutableLiveData<Resource<Void?>>): () -> Unit {
-        return { voidLiveData.postValue(Resource(null)) }
-    }
-
-    private fun publicaResouceVazioDeFalha(voidLiveData: MutableLiveData<Resource<Void?>>): (errorMsg: String?) -> Unit {
-        return { voidLiveData.postValue(Resource(null, it)) }
-    }
-
-    private fun <T> publicaResouceDeFalha(liveData: MutableLiveData<Resource<T>>): (errorMsg: String?) -> Unit {
-        val resourceAtual = liveData.value
-        return { errorMsg ->
-            resourceAtual?.let { liveData.postValue(it.criarResouceDeFalha(errorMsg)) }
-        }
-    }
-
-    fun salva(noticia: Noticia): LiveData<Resource<Void?>> {
+    override fun salva(noticia: Noticia): LiveData<Resource<Void?>> {
         val voidLiveData = createVoidLivedata()
         salvaNaApi(
             noticia,
@@ -55,7 +38,7 @@ class NoticiaRepository(
         return voidLiveData
     }
 
-    fun remove(noticia: Noticia): MutableLiveData<Resource<Void?>> {
+    override fun remove(noticia: Noticia): MutableLiveData<Resource<Void?>> {
         val voidLiveData: MutableLiveData<Resource<Void?>> = createVoidLivedata()
         removeNaApi(
             noticia,
@@ -65,11 +48,8 @@ class NoticiaRepository(
         return voidLiveData
     }
 
-    fun edita(
-        noticia: Noticia
-    ): LiveData<Resource<Void?>> {
+    override fun edita(noticia: Noticia): LiveData<Resource<Void?>> {
         val voidLiveData = createVoidLivedata()
-
         editaNaApi(
             noticia,
             quandoSucesso = publicaResouceVazioSucesso(voidLiveData),
@@ -78,11 +58,7 @@ class NoticiaRepository(
         return voidLiveData
     }
 
-    private fun createVoidLivedata(): MutableLiveData<Resource<Void?>> {
-        return MutableLiveData()
-    }
-
-    fun buscaPorId(noticiaId: Long): LiveData<Resource<Noticia?>> {
+    override fun buscaPorId(noticiaId: Long): LiveData<Resource<Noticia?>> {
         BaseAsyncTask(
             quandoExecuta = { dao.buscaPorId(noticiaId) },
             quandoFinaliza = publicaResouceDeSucesso(noticiaLiveData)

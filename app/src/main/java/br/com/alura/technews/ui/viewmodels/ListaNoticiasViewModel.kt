@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import br.com.alura.technews.model.Noticia
 import br.com.alura.technews.model.Resource
-import br.com.alura.technews.repository.NoticiaRepository
+import br.com.alura.technews.repository.noticiaRepository.NoticiaRepository
 
 class ListaNoticiasViewModel(private val noticiaRepository: NoticiaRepository) : ViewModel() {
 

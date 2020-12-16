@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager.VERTICAL
 import br.com.alura.technews.R
 import br.com.alura.technews.database.AppDatabase
 import br.com.alura.technews.model.Noticia
-import br.com.alura.technews.repository.NoticiaRepository
+import br.com.alura.technews.repository.noticiaRepository.NoticiaRepositoryImpl
 import br.com.alura.technews.ui.activity.extensions.mostraErro
 import br.com.alura.technews.ui.recyclerview.adapter.ListaNoticiasAdapter
 import br.com.alura.technews.ui.viewmodels.ListaNoticiasViewModel
@@ -27,7 +27,7 @@ class ListaNoticiasActivity : AppCompatActivity() {
     }
 
     private val mViewModel by lazy {
-        val repository = NoticiaRepository(AppDatabase.getInstance(this).noticiaDAO)
+        val repository = NoticiaRepositoryImpl(AppDatabase.getInstance(this).noticiaDAO)
         val factory = ListaNoticiaViewModelFactory(repository)
         ViewModelProvider(this, factory).get(ListaNoticiasViewModel::class.java)
     }

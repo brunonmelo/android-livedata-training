@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import br.com.alura.technews.R
 import br.com.alura.technews.database.AppDatabase
 import br.com.alura.technews.model.Noticia
-import br.com.alura.technews.model.Resource
-import br.com.alura.technews.repository.NoticiaRepository
+import br.com.alura.technews.repository.noticiaRepository.NoticiaRepositoryImpl
 import br.com.alura.technews.ui.activity.extensions.mostraErro
 import br.com.alura.technews.ui.viewmodels.FormularioNoticiaViewModel
 import br.com.alura.technews.ui.viewmodels.factory.FormularioNoticiaViewModelFactory
@@ -28,7 +26,7 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     }
 
     private val mViewModel by lazy {
-        val repository = NoticiaRepository(AppDatabase.getInstance(this).noticiaDAO)
+        val repository = NoticiaRepositoryImpl(AppDatabase.getInstance(this).noticiaDAO)
         val factory = FormularioNoticiaViewModelFactory(repository)
         ViewModelProvider(this, factory).get(FormularioNoticiaViewModel::class.java)
     }
