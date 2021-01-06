@@ -12,14 +12,14 @@ import br.com.alura.technews.ui.activity.extensions.mostraErro
 import br.com.alura.technews.ui.recyclerview.adapter.ListaNoticiasAdapter
 import br.com.alura.technews.ui.viewmodels.ListaNoticiasViewModel
 import kotlinx.android.synthetic.main.activity_lista_noticias.*
-import org.koin.android.ext.android.inject
+import org.koin.android.viewmodel.ext.android.viewModel
 
 private const val TITULO_APPBAR = "Notícias"
 private const val MENSAGEM_FALHA_CARREGAR_NOTICIAS = "Não foi possível carregar as novas notícias"
 
 class ListaNoticiasActivity : AppCompatActivity() {
 
-    private val mViewModel by inject<ListaNoticiasViewModel>()
+    private val mViewModel:ListaNoticiasViewModel by viewModel()
     private val adapter by lazy {
         ListaNoticiasAdapter(context = this)
     }
