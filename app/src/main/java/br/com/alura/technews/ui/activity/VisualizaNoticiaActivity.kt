@@ -82,17 +82,15 @@ class VisualizaNoticiaActivity : AppCompatActivity() {
     }
 
     private fun remove() {
-        if (::noticia.isInitialized) {
-            mViewModel
-                .remove(noticia)
-                .observe(this, Observer { resource ->
-                    if (resource.error != null) {
-                        mostraErro(MENSAGEM_FALHA_REMOCAO)
-                    } else {
-                        finish()
-                    }
-                })
-        }
+        mViewModel
+            .remove(noticiaId)
+            .observe(this, Observer { resource ->
+                if (resource.error != null) {
+                    mostraErro(MENSAGEM_FALHA_REMOCAO)
+                } else {
+                    finish()
+                }
+            })
     }
 
     private fun abreFormularioEdicao() {

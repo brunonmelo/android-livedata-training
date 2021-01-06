@@ -38,10 +38,10 @@ class NoticiaRepositoryImpl(
         return voidLiveData
     }
 
-    override fun remove(noticia: Noticia): MutableLiveData<Resource<Void?>> {
+    override fun remove(noticiaId: Long): MutableLiveData<Resource<Void?>> {
         val voidLiveData: MutableLiveData<Resource<Void?>> = createVoidLivedata()
         removeNaApi(
-            noticia,
+            noticiaId,
             quandoSucesso = publicaResouceVazioSucesso(voidLiveData),
             quandoFalha = publicaResouceVazioDeFalha(voidLiveData)
         )
@@ -130,14 +130,14 @@ class NoticiaRepositoryImpl(
     }
 
     private fun removeNaApi(
-        noticia: Noticia,
+        noticiaId: Long,
         quandoSucesso: () -> Unit,
         quandoFalha: (erro: String?) -> Unit
     ) {
         webclient.remove(
-            noticia.id,
+            noticiaId,
             quandoSucesso = {
-                removeInterno(noticia, quandoSucesso)
+                removeInterno(noticiaId, quandoSucesso)
             },
             quandoFalha = quandoFalha
         )
@@ -145,11 +145,12 @@ class NoticiaRepositoryImpl(
 
 
     private fun removeInterno(
-        noticia: Noticia,
+        noticiaId: Long,
         quandoSucesso: () -> Unit
     ) {
         BaseAsyncTask(quandoExecuta = {
-            dao.remove(noticia)
+            val noticiaPorId = dao.buscaPorId(noticiaId)
+            noticiaPorId?.let { dao.remove(it) }
         }, quandoFinaliza = {
             quandoSucesso()
         }).execute()
