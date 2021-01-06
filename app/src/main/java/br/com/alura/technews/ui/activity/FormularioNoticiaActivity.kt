@@ -22,6 +22,7 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     private val noticiaId: Long by lazy {
         intent.getLongExtra(NOTICIA_ID_CHAVE, 0)
     }
+    private val isEdita by lazy { noticiaId > 0 }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +32,7 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     }
 
     private fun definindoTitulo() {
-        title = if (noticiaId > 0) {
+        title = if (isEdita) {
             TITULO_APPBAR_EDICAO
         } else {
             TITULO_APPBAR_CRIACAO
@@ -39,14 +40,16 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     }
 
     private fun preencheFormulario() {
-        mViewModel
-            .buscaPorId(noticiaId)
-            .observe(this, Observer { resourceNoticia ->
-                resourceNoticia.dado?.let { noticia ->
-                    activity_formulario_noticia_titulo.setText(noticia.titulo)
-                    activity_formulario_noticia_texto.setText(noticia.texto)
-                }
-            })
+        if(isEdita) {
+            mViewModel
+                .buscaPorId(noticiaId)
+                .observe(this, Observer { resourceNoticia ->
+                    resourceNoticia.dado?.let { noticia ->
+                        activity_formulario_noticia_titulo.setText(noticia.titulo)
+                        activity_formulario_noticia_texto.setText(noticia.texto)
+                    }
+                })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
