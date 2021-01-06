@@ -57,4 +57,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.13.1'
 
+    // Koin
+    implementation "org.koin:koin-android:$koin_version"
+
 }

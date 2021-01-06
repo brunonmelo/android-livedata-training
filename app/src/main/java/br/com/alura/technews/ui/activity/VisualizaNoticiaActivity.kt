@@ -6,15 +6,12 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import br.com.alura.technews.R
-import br.com.alura.technews.database.AppDatabase
 import br.com.alura.technews.model.Noticia
-import br.com.alura.technews.repository.noticiaRepository.NoticiaRepositoryImpl
 import br.com.alura.technews.ui.activity.extensions.mostraErro
-import br.com.alura.technews.ui.viewmodels.VizualizaNoticiaViewModel
-import br.com.alura.technews.ui.viewmodels.factory.VisualizaNoticiaViewModelFactory
+import br.com.alura.technews.ui.viewmodels.VisualizaNoticiaViewModel
 import kotlinx.android.synthetic.main.activity_visualiza_noticia.*
+import org.koin.android.ext.android.inject
 
 private const val NOTICIA_NAO_ENCONTRADA = "Notícia não encontrada"
 private const val TITULO_APPBAR = "Notícia"
@@ -22,16 +19,8 @@ private const val MENSAGEM_FALHA_REMOCAO = "Não foi possível remover notícia"
 
 class VisualizaNoticiaActivity : AppCompatActivity() {
 
-    private val noticiaId: Long by lazy {
-        intent.getLongExtra(NOTICIA_ID_CHAVE, 0)
-    }
-
-    private val mViewModel by lazy {
-        val repository = NoticiaRepositoryImpl(AppDatabase.getInstance(this).noticiaDAO)
-        val factory = VisualizaNoticiaViewModelFactory(repository)
-        ViewModelProvider(this, factory).get(VizualizaNoticiaViewModel::class.java)
-    }
-    private lateinit var noticia: Noticia
+    private val mViewModel by inject<VisualizaNoticiaViewModel>()
+    private val noticiaId: Long by lazy { intent.getLongExtra(NOTICIA_ID_CHAVE, 0) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +52,6 @@ class VisualizaNoticiaActivity : AppCompatActivity() {
             .buscaPorId(noticiaId)
             .observe(this, Observer { resource ->
                 resource.dado?.let {
-                    this.noticia = it
                     preencheCampos(it)
                 }
             })
