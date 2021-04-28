@@ -21,16 +21,13 @@ class VisualizaNoticiaActivity : AppCompatActivity() {
 
     private val mViewModel: VisualizaNoticiaViewModel by viewModel()
     private val noticiaId: Long by lazy { intent.getLongExtra(NOTICIA_ID_CHAVE, 0) }
+    private lateinit var noticia: Noticia
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_visualiza_noticia)
         title = TITULO_APPBAR
         verificaIdDaNoticia()
-    }
-
-    override fun onResume() {
-        super.onResume()
         buscaNoticiaSelecionada()
     }
 
@@ -50,8 +47,9 @@ class VisualizaNoticiaActivity : AppCompatActivity() {
     private fun buscaNoticiaSelecionada() {
         mViewModel
             .buscaPorId(noticiaId)
-            .observe(this, Observer { resource ->
-                resource.dado?.let {
+            .observe(this, { noticia ->
+                noticia?.let {
+                    this.noticia = it
                     preencheCampos(it)
                 }
             })
@@ -71,8 +69,8 @@ class VisualizaNoticiaActivity : AppCompatActivity() {
 
     private fun remove() {
         mViewModel
-            .remove(noticiaId)
-            .observe(this, Observer { resource ->
+            .remove(noticia)
+            .observe(this, { resource ->
                 if (resource.error != null) {
                     mostraErro(MENSAGEM_FALHA_REMOCAO)
                 } else {

@@ -43,8 +43,8 @@ class FormularioNoticiaActivity : AppCompatActivity() {
         if(isEdita) {
             mViewModel
                 .buscaPorId(noticiaId)
-                .observe(this, Observer { resourceNoticia ->
-                    resourceNoticia.dado?.let { noticia ->
+                .observe(this, { resourceNoticia ->
+                    resourceNoticia?.let { noticia ->
                         activity_formulario_noticia_titulo.setText(noticia.titulo)
                         activity_formulario_noticia_texto.setText(noticia.texto)
                     }
@@ -71,7 +71,7 @@ class FormularioNoticiaActivity : AppCompatActivity() {
     private fun salva(noticia: Noticia) {
         mViewModel
             .salva(noticia)
-            .observe(this, Observer { resource ->
+            .observe(this, { resource ->
                 if (resource.error != null) {
                     mostraErro(MENSAGEM_ERRO_SALVAR)
                 } else {

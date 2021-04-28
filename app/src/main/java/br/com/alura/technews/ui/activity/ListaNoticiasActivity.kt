@@ -3,7 +3,6 @@ package br.com.alura.technews.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager.VERTICAL
 import br.com.alura.technews.R
@@ -30,10 +29,6 @@ class ListaNoticiasActivity : AppCompatActivity() {
         title = TITULO_APPBAR
         configuraRecyclerView()
         configuraFabAdicionaNoticia()
-    }
-
-    override fun onResume() {
-        super.onResume()
         buscaNoticias()
     }
 
@@ -57,7 +52,7 @@ class ListaNoticiasActivity : AppCompatActivity() {
     private fun buscaNoticias() {
         mViewModel
             .buscaTodos()
-            .observe(this, Observer { resource ->
+            .observe(this, { resource ->
                 resource.dado?.let { adapter.atualiza(it) }
                 resource.error?.let { mostraErro(MENSAGEM_FALHA_CARREGAR_NOTICIAS) }
             })
