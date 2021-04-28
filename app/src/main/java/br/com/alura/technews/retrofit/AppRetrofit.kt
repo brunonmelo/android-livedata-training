@@ -1,12 +1,11 @@
 package br.com.alura.technews.retrofit
 
+import br.com.alura.technews.constants.AppConstants.BASE_URL
 import br.com.alura.technews.retrofit.service.NoticiaService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-
-private const val BASE_URL = "http://192.168.0.160:8080/"
 
 class AppRetrofit {
 
