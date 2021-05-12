@@ -2,87 +2,49 @@ package br.com.alura.technews.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
+import androidx.fragment.app.Fragment
 import br.com.alura.technews.R
-import br.com.alura.technews.model.Noticia
-import br.com.alura.technews.ui.activity.extensions.mostraErro
-import br.com.alura.technews.ui.viewmodels.VisualizaNoticiaViewModel
-import kotlinx.android.synthetic.main.activity_visualiza_noticia.*
-import org.koin.android.viewmodel.ext.android.viewModel
-
-private const val NOTICIA_NAO_ENCONTRADA = "Notícia não encontrada"
-private const val TITULO_APPBAR = "Notícia"
-private const val MENSAGEM_FALHA_REMOCAO = "Não foi possível remover notícia"
+import br.com.alura.technews.ui.fragment.VisualizaNoticiaFragment
 
 class VisualizaNoticiaActivity : AppCompatActivity() {
 
-    private val mViewModel: VisualizaNoticiaViewModel by viewModel()
     private val noticiaId: Long by lazy { intent.getLongExtra(NOTICIA_ID_CHAVE, 0) }
-    private lateinit var noticia: Noticia
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_visualiza_noticia)
         title = TITULO_APPBAR
-        verificaIdDaNoticia()
-        buscaNoticiaSelecionada()
+        setupVisualizaNoticiaFragment()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.visualiza_noticia_menu, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
-            R.id.visualiza_noticia_menu_edita -> abreFormularioEdicao()
-            R.id.visualiza_noticia_menu_remove -> remove()
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun buscaNoticiaSelecionada() {
-        mViewModel
-            .buscaPorId(noticiaId)
-            .observe(this, { noticia ->
-                noticia?.let {
-                    this.noticia = it
-                    preencheCampos(it)
-                }
-            })
-    }
-
-    private fun verificaIdDaNoticia() {
-        if (noticiaId == 0L) {
-            mostraErro(NOTICIA_NAO_ENCONTRADA)
-            finish()
+    override fun onAttachFragment(fragment: Fragment) {
+        super.onAttachFragment(fragment)
+        when (fragment) {
+            is VisualizaNoticiaFragment -> {
+                fragment.abreFormularioEdicao = { abreFormularioEdicao(it) }
+            }
         }
     }
 
-    private fun preencheCampos(noticia: Noticia) {
-        activity_visualiza_noticia_titulo.text = noticia.titulo
-        activity_visualiza_noticia_texto.text = noticia.texto
+    private fun setupVisualizaNoticiaFragment() {
+        val transaction = supportFragmentManager.beginTransaction()
+        val fragment = VisualizaNoticiaFragment()
+        val bundle = Bundle()
+        bundle.putLong(NOTICIA_ID_CHAVE, noticiaId)
+        fragment.arguments = bundle
+        transaction.add(R.id.activity_visualiza_noticia_container, fragment)
+        transaction.commit()
     }
 
-    private fun remove() {
-        mViewModel
-            .remove(noticia)
-            .observe(this, { resource ->
-                if (resource.error != null) {
-                    mostraErro(MENSAGEM_FALHA_REMOCAO)
-                } else {
-                    finish()
-                }
-            })
-    }
-
-    private fun abreFormularioEdicao() {
+    private fun abreFormularioEdicao(noticiaId: Long) {
         val intent = Intent(this, FormularioNoticiaActivity::class.java)
         intent.putExtra(NOTICIA_ID_CHAVE, noticiaId)
         startActivity(intent)
+    }
+
+    companion object {
+        private const val TITULO_APPBAR = "Notícia"
     }
 
 }
