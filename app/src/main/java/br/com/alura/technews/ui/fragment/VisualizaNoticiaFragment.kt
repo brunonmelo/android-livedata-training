@@ -23,6 +23,7 @@ class VisualizaNoticiaFragment : Fragment() {
 
     private lateinit var noticia: Noticia
     lateinit var abreFormularioEdicao: (noticiaId: Long) -> Unit
+    lateinit var finalizaVizualizaNoticia: () -> Unit
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +49,7 @@ class VisualizaNoticiaFragment : Fragment() {
     private fun verificaIdDaNoticia() {
         if (noticiaId == 0L) {
             mostraErro(NOTICIA_NAO_ENCONTRADA)
-            activity?.finish()
+            finalizaVizualizaNoticia()
         }
     }
 
@@ -86,7 +87,7 @@ class VisualizaNoticiaFragment : Fragment() {
                 if (resource.error != null) {
                     mostraErro(MENSAGEM_FALHA_REMOCAO)
                 } else {
-                    activity?.finish()
+                    finalizaVizualizaNoticia()
                 }
             })
     }

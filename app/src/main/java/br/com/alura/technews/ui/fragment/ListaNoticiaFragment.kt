@@ -12,7 +12,7 @@ import br.com.alura.technews.model.Noticia
 import br.com.alura.technews.ui.fragment.extensions.mostraErro
 import br.com.alura.technews.ui.recyclerview.adapter.ListaNoticiasAdapter
 import br.com.alura.technews.ui.viewmodels.ListaNoticiasViewModel
-import kotlinx.android.synthetic.main.lista_noticia.*
+import kotlinx.android.synthetic.main.fragment_lista_noticia.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class ListaNoticiaFragment : Fragment() {
@@ -35,7 +35,7 @@ class ListaNoticiaFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ) = inflater.inflate(R.layout.lista_noticia, container)
+    ) = inflater.inflate(R.layout.fragment_lista_noticia, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
