@@ -1,10 +1,10 @@
 package br.com.alura.technews.ui.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import br.com.alura.technews.R
 import br.com.alura.technews.model.Noticia
 import br.com.alura.technews.ui.activity.extensions.mostraErro
@@ -72,6 +72,7 @@ class FormularioNoticiaActivity : AppCompatActivity() {
         mViewModel
             .salva(noticia)
             .observe(this, { resource ->
+                Log.d("aqui", resource.toString())
                 if (resource.error != null) {
                     mostraErro(MENSAGEM_ERRO_SALVAR)
                 } else {

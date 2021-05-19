@@ -44,12 +44,8 @@ class NoticiaWebClient(
         )
     }
 
-    fun salva(
-        noticia: Noticia,
-        quandoSucesso: (noticiasNovas: Noticia?) -> Unit,
-        quandoFalha: (erro: String?) -> Unit
-    ) {
-        executaRequisicao(service.salva(noticia), quandoSucesso, quandoFalha)
+    fun salva(noticia: Noticia): Noticia? {
+        return service.salva(noticia).execute().body()
     }
 
     fun edita(

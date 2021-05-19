@@ -6,7 +6,11 @@ import br.com.alura.technews.model.Resource
 abstract class BaseRepository {
 
     internal fun publicaResouceVazioSucesso(voidLiveData: MutableLiveData<Resource<Void?>>): () -> Unit {
-        return { voidLiveData.postValue(Resource(null)) }
+        return { voidLiveData.value = Resource() }
+    }
+
+    fun  MutableLiveData<Resource<Void?>>.publicaResouceVazioSucesso() {
+        this.postValue(Resource())
     }
 
     internal fun publicaResouceVazioDeFalha(voidLiveData: MutableLiveData<Resource<Void?>>): (errorMsg: String?) -> Unit {

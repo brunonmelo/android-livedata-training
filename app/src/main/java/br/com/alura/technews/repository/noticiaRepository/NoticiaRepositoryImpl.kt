@@ -9,6 +9,9 @@ import br.com.alura.technews.model.Noticia
 import br.com.alura.technews.model.Resource
 import br.com.alura.technews.repository.BaseRepository
 import br.com.alura.technews.retrofit.webclient.NoticiaWebClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
 
 class NoticiaRepositoryImpl(
     private val dao: NoticiaDAO,
@@ -35,11 +38,9 @@ class NoticiaRepositoryImpl(
 
     override fun salva(noticia: Noticia): LiveData<Resource<Void?>> {
         val voidLiveData = createVoidLivedata()
-        salvaNaApi(
-            noticia,
-            quandoSucesso = publicaResouceVazioSucesso(voidLiveData),
-            quandoFalha = publicaResouceVazioDeFalha(voidLiveData)
-        )
+        salvaNaApi(noticia)
+        voidLiveData.publicaResouceVazioSucesso()
+
         return voidLiveData
     }
 
@@ -79,29 +80,22 @@ class NoticiaRepositoryImpl(
 
     private fun buscaInterno(): LiveData<List<Noticia>> = dao.buscaTodos()
 
-    private fun salvaNaApi(
-        noticia: Noticia,
-        quandoSucesso: () -> Unit,
-        quandoFalha: (erro: String?) -> Unit
-    ) {
-        webclient.salva(
-            noticia,
-            quandoSucesso = {
-                it?.let { noticiaSalva ->
-                    salvaInterno(noticiaSalva, quandoSucesso)
-                }
-            }, quandoFalha = quandoFalha
-        )
+    private fun salvaNaApi(noticia: Noticia) {
+        val scope = CoroutineScope(IO)
+        scope.launch {
+            webclient.salva(noticia)?.let { noticiaSalva ->
+                dao.salva(noticiaSalva)
+            }
+        }
     }
 
     private fun salvaInterno(
         noticias: List<Noticia>
     ) {
-        BaseAsyncTask(
-            quandoExecuta = {
-                dao.salva(noticias)
-            }
-        ).execute()
+        val scope = CoroutineScope(IO)
+        scope.launch {
+            dao.salva(noticias)
+        }
     }
 
     private fun salvaInterno(
