@@ -41,6 +41,7 @@ class ListaNoticiaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         configuraRecyclerView()
         configuraFabAdicionaNoticia()
+        activity?.title = TITULO_APPBAR
     }
 
     private fun configuraFabAdicionaNoticia() {
@@ -72,6 +73,7 @@ class ListaNoticiaFragment : Fragment() {
 
 
     companion object {
+        private const val TITULO_APPBAR = "Notícias"
         private const val MENSAGEM_FALHA_CARREGAR_NOTICIAS =
             "Não foi possível carregar as novas notícias"
     }

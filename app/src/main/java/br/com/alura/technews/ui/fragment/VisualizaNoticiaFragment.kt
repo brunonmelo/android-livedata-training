@@ -40,11 +40,15 @@ class VisualizaNoticiaFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_visualiza_noticia, container, false)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        activity?.title = TITULO_APPBAR
+    }
+
     private fun preencheCampos(noticia: Noticia) {
         visualiza_noticia_titulo.text = noticia.titulo
         visualiza_noticia_texto.text = noticia.texto
     }
-
 
     private fun verificaIdDaNoticia() {
         if (noticiaId == 0L) {
@@ -93,6 +97,7 @@ class VisualizaNoticiaFragment : Fragment() {
     }
 
     companion object {
+        private const val TITULO_APPBAR = "Notícia"
         private const val MENSAGEM_FALHA_REMOCAO = "Não foi possível remover notícia"
         private const val NOTICIA_NAO_ENCONTRADA = "Notícia não encontrada"
     }

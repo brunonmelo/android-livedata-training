@@ -3,7 +3,7 @@ package br.com.alura.technews.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.Fragment
 import br.com.alura.technews.R
 import br.com.alura.technews.model.Noticia
 import br.com.alura.technews.ui.activity.extensions.transacaoFragment
@@ -15,17 +15,15 @@ class NoticiasActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_noticias)
-        title = TITULO_APPBAR
-        setupFragments()
-        abreListaNoticia()
+        if (savedInstanceState == null) {
+            abreListaNoticia()
+        }
     }
 
-    private fun setupFragments() {
-        supportFragmentManager.addFragmentOnAttachListener { _, fragment ->
-            when (fragment) {
-                is ListaNoticiaFragment -> configuraListaNoticiaFragment(fragment)
-                is VisualizaNoticiaFragment -> configuraVisualizaNoticiaFragment(fragment)
-            }
+    override fun onAttachFragment(fragment: Fragment) {
+        when (fragment) {
+            is ListaNoticiaFragment -> configuraListaNoticiaFragment(fragment)
+            is VisualizaNoticiaFragment -> configuraVisualizaNoticiaFragment(fragment)
         }
     }
 
@@ -75,7 +73,6 @@ class NoticiasActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TITULO_APPBAR = "Notícias"
         private const val LISTA_NOTICIA_TAG = "LISTA_NOTICIA_TAG"
         private const val VISUALIZA_NOTICIA_TAG = "VISUALIZA_NOTICIA_TAG"
     }
